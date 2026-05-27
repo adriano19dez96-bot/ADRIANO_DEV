@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ACM — Adriano Costa Marques</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --blue: #00c8ff;
+    --purple: #9b5de5;
+    --blue-glow: rgba(0,200,255,0.18);
+    --purple-glow: rgba(155,93,229,0.18);
+    --bg: #06060f;
+    --bg2: #0c0c1e;
+    --text: #e8eaf6;
+    --muted: #f8f8ff;
+    --card: rgba(255,255,255,0.03);
+    --border: rgba(0,200,255,0.12);
+  }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Rajdhani', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    overflow-x: hidden;
+    cursor: none;
+  }
+  .cursor {
+    width: 10px; height: 10px;
+    background: var(--blue);
+    border-radius: 50%;
+    position: fixed; top: 0; left: 0;
+    pointer-events: none; z-index: 9999;
+    transition: transform 0.1s;
+    box-shadow: 0 0 10px var(--blue), 0 0 20px var(--blue-glow);
+  }
+  .cursor-ring {
+    width: 36px; height: 36px;
+    border: 1px solid rgba(0,200,255,0.4);
+    border-radius: 50%;
+    position: fixed; top: 0; left: 0;
+    pointer-events: none; z-index: 9998;
+    transition: transform 0.18s ease, width 0.2s, height 0.2s;
+  }
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image:
+      linear-gradient(rgba(0,200,255,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,200,255,0.04) 1px, transparent 1px);
+    background-size: 60px 60px;
+    z-index: 0; pointer-events: none;
+  }
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 1.2rem 4rem;
+    background: rgba(6,6,15,0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-logo {
+    font-family: 'Orbitron', monospace;
+    font-weight: 900;
+    font-size: 1.3rem;
+    background: linear-gradient(90deg, var(--blue), var(--purple));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: 0.1em;
+  }
+  .nav-links { display: flex; gap: 2.5rem; list-style: none; }
+  .nav-links a {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.8rem;
+    color: var(--muted);
+    text-decoration: none;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    transition: color 0.3s;
+    position: relative;
+  }
+  .nav-links a::after {
+    content: '';
+    position: absolute; bottom: -4px; left: 0; right: 0;
+    height: 1px;
+    background: var(--blue);
+    transform: scaleX(0);
+    transition: transform 0.3s;
+  }
+  .nav-links a:hover { color: var(--blue); }
+  .nav-links a:hover::after { transform: scaleX(1); }
+  #hero {
+    min-height: 100vh;
+    display: flex; align-items: center; justify-content: center;
+    padding: 6rem 4rem 4rem;
+    position: relative; z-index: 1;
+  }
+  .hero-inner {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem; align-items: center;
+    max-width: 1100px; width: 100%;
+  }
+  .hero-text { animation: fadeUp 0.9s ease both; }
+  .hero-tag {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--blue);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 1.2rem;
+    display: flex; align-items: center; gap: 0.6rem;
+  }
+  .hero-tag::before {
+    content: '';
+    width: 30px; height: 1px;
+    background: var(--blue);
+    box-shadow: 0 0 8px var(--blue);
+  }
+  .hero-name {
+    font-family: 'Orbitron', monospace;
+    font-weight: 900;
+    font-size: clamp(2.2rem, 5vw, 3.8rem);
+    line-height: 1.1;
+    margin-bottom: 0.4rem;
+    background: linear-gradient(135deg, #fff 0%, var(--blue) 50%, var(--purple) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .hero-sub {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 1rem;
+    color: var(--purple);
+    letter-spacing: 0.1em;
+    margin-bottom: 1.8rem;
+  }
+  .hero-desc {
+    font-size: 1.1rem;
+    color: var(--muted);
+    line-height: 1.7;
+    font-weight: 300;
+    margin-bottom: 2.5rem;
+    max-width: 480px;
+  }
+  .hero-logo {
+    display: flex; align-items: center; justify-content: center;
+    animation: fadeUp 0.9s 0.2s ease both;
+  }
+  .logo-wrap {
+    position: relative;
+    width: 340px; height: 340px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .logo-ring {
+    position: absolute; inset: 0;
+    border-radius: 50%;
+    border: 1px solid rgba(0,200,255,0.2);
+    animation: spin 18s linear infinite;
+  }
+  .logo-ring::before {
+    content: '';
+    position: absolute; top: -3px; left: 50%;
+    width: 6px; height: 6px;
+    background: var(--blue);
+    border-radius: 50%;
+    box-shadow: 0 0 12px var(--blue);
+    transform: translateX(-50%);
+  }
+  .logo-ring-2 {
+    position: absolute;
+    inset: 20px;
+    border-radius: 50%;
+    border: 1px solid rgba(155,93,229,0.15);
+    animation: spin 12s linear infinite reverse;
+  }
+  .logo-img {
+    width: 220px; height: 220px;
+    object-fit: contain;
+    border-radius: 50%;
+    position: relative; z-index: 2;
+    filter: drop-shadow(0 0 20px rgba(0,200,255,0.4)) drop-shadow(0 0 40px rgba(155,93,229,0.3));
+    animation: pulse-logo 3s ease-in-out infinite;
+  }
+  @keyframes pulse-logo {
+    0%, 100% { filter: drop-shadow(0 0 20px rgba(0,200,255,0.4)) drop-shadow(0 0 40px rgba(155,93,229,0.3)); }
+    50% { filter: drop-shadow(0 0 30px rgba(0,200,255,0.7)) drop-shadow(0 0 60px rgba(155,93,229,0.5)); }
+  }
+  section { position: relative; z-index: 1; padding: 6rem 4rem; }
+  .section-inner { max-width: 1100px; margin: 0 auto; }
+  .section-tag {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--blue);
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    margin-bottom: 0.6rem;
+    display: flex; align-items: center; gap: 0.6rem;
+  }
+  .section-tag::before {
+    content: '';
+    width: 20px; height: 1px;
+    background: var(--blue);
+  }
+  .section-title {
+    font-family: 'Orbitron', monospace;
+    font-weight: 700;
+    font-size: clamp(1.6rem, 3vw, 2.2rem);
+    margin-bottom: 3rem;
+    background: linear-gradient(90deg, #fff, var(--muted));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .sobre-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem; align-items: start;
+  }
+  .sobre-text {
+    font-size: 1.05rem;
+    color: var(--muted);
+    line-height: 1.9;
+    font-weight: 300;
+  }
+  .sobre-text strong {
+    color: var(--blue);
+    font-weight: 600;
+  }
+  .sobre-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+  .stat-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1.4rem;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.3s, transform 0.3s;
+  }
+  .stat-card::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--blue), var(--purple));
+    transform: scaleX(0);
+    transition: transform 0.4s;
+  }
+  .stat-card:hover { border-color: rgba(0,200,255,0.3); transform: translateY(-3px); }
+  .stat-card:hover::before { transform: scaleX(1); }
+  .stat-number {
+    font-family: 'Orbitron', monospace;
+    font-size: 1.8rem;
+    font-weight: 900;
+    background: linear-gradient(90deg, var(--blue), var(--purple));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .stat-label {
+    font-size: 0.8rem;
+    color: var(--muted);
+    font-family: 'Share Tech Mono', monospace;
+    letter-spacing: 0.05em;
+    margin-top: 0.3rem;
+  }
+  #skills { background: var(--bg2); }
+  .skills-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+  }
+  .skill-category {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1.8rem;
+    transition: border-color 0.3s, transform 0.3s;
+  }
+  .skill-category:hover {
+    border-color: rgba(155,93,229,0.3);
+    transform: translateY(-4px);
+    box-shadow: 0 10px 40px rgba(155,93,229,0.08);
+  }
+  .skill-cat-title {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--purple);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 1.2rem;
+    padding-bottom: 0.8rem;
+    border-bottom: 1px solid rgba(155,93,229,0.15);
+  }
+  .skill-items { display: flex; flex-wrap: wrap; gap: 0.6rem; }
+  .skill-tag {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.72rem;
+    padding: 0.35rem 0.8rem;
+    border-radius: 2px;
+    letter-spacing: 0.08em;
+    transition: all 0.2s;
+  }
+  .skill-tag.blue {
+    background: rgba(0,200,255,0.08);
+    border: 1px solid rgba(0,200,255,0.2);
+    color: var(--blue);
+  }
+  .skill-tag.purple {
+    background: rgba(155,93,229,0.08);
+    border: 1px solid rgba(155,93,229,0.2);
+    color: var(--purple);
+  }
+  .skill-tag:hover {
+    background: rgba(0,200,255,0.15);
+    box-shadow: 0 0 12px var(--blue-glow);
+  }
+  .projetos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+  }
+  .projeto-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 2rem;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s;
+  }
+  .projeto-card::after {
+    content: '';
+    position: absolute; bottom: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--blue), var(--purple));
+    transform: scaleX(0); transform-origin: left;
+    transition: transform 0.4s;
+  }
+  .projeto-card:hover { border-color: rgba(0,200,255,0.25); transform: translateY(-4px); }
+  .projeto-card:hover::after { transform: scaleX(1); }
+  .projeto-badge {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.65rem;
+    padding: 0.25rem 0.7rem;
+    border-radius: 20px;
+    background: rgba(0,200,255,0.08);
+    border: 1px solid rgba(0,200,255,0.2);
+    color: var(--blue);
+    letter-spacing: 0.12em;
+    display: inline-block;
+    margin-bottom: 1rem;
+  }
+  .projeto-badge.em-breve {
+    background: rgba(155,93,229,0.08);
+    border-color: rgba(155,93,229,0.2);
+    color: var(--purple);
+  }
+  .projeto-title {
+    font-family: 'Orbitron', monospace;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 0.6rem;
+  }
+  .projeto-desc {
+    font-size: 0.9rem;
+    color: var(--muted);
+    line-height: 1.6;
+    font-weight: 300;
+  }
+  #contato { background: var(--bg2); }
+  .contato-inner {
+    max-width: 700px; margin: 0 auto; text-align: center;
+  }
+  .social-grid {
+    display: flex; justify-content: center; gap: 1.2rem; flex-wrap: wrap;
+  }
+  .social-link {
+    display: flex; align-items: center; gap: 0.7rem;
+    padding: 0.9rem 1.6rem;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    text-decoration: none;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.8rem;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    transition: all 0.3s;
+    background: var(--card);
+  }
+  .social-link:hover {
+    border-color: var(--blue);
+    color: var(--blue);
+    background: var(--blue-glow);
+    box-shadow: 0 0 20px var(--blue-glow);
+    transform: translateY(-2px);
+  }
+  footer {
+    text-align: center;
+    padding: 2rem 4rem;
+    border-top: 1px solid var(--border);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    position: relative; z-index: 1;
+  }
+  .footer-accent {
+    background: linear-gradient(90deg, var(--blue), var(--purple));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border), transparent);
+    margin: 0 4rem;
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+  .reveal {
+    opacity: 0; transform: translateY(30px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+  @media (max-width: 768px) {
+    nav { padding: 1rem 1.5rem; }
+    .nav-links { display: none; }
+    #hero { padding: 5rem 1.5rem 3rem; }
+    .hero-inner { grid-template-columns: 1fr; gap: 2rem; }
+    .hero-logo { order: -1; }
+    .logo-wrap { width: 220px; height: 220px; }
+    .logo-img { width: 140px; height: 140px; }
+    section { padding: 4rem 1.5rem; }
+    .sobre-grid { grid-template-columns: 1fr; }
+    .sobre-stats { grid-template-columns: 1fr 1fr; }
+    .divider { margin: 0 1.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<nav>
+  <div class="nav-logo">{ACM}</div>
+  <ul class="nav-links">
+    <li><a href="#sobre">// sobre</a></li>
+    <li><a href="#skills">// skills</a></li>
+    <li><a href="#projetos">// projetos</a></li>
+    <li><a href="#contato">// contato</a></li>
+  </ul>
+</nav>
+
+<section id="hero">
+  <div class="hero-inner">
+    <div class="hero-text">
+      <div class="hero-tag">Estudante de ADS · Desenvolvedor em formação</div>
+      <h1 class="hero-name">Adriano<br>Costa<br>Marques</h1>
+      <div class="hero-sub">{ function build() { return &lt;ACM /&gt; } }</div>
+      <p class="hero-desc">Aprendendo a transformar lógica em solução. Em construção constante — como todo bom sistema.</p>
+    </div>
+    <div class="hero-logo">
+      <div class="logo-wrap">
+        <div class="logo-ring"></div>
+        <div class="logo-ring-2"></div>
+        <img src="./src/logo_ofc.jpeg" alt="Logo ACM" class="logo-img">
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<section id="sobre">
+  <div class="section-inner">
+    <div class="section-tag">01 // sobre mim</div>
+    <h2 class="section-title reveal">Quem é o ACM?</h2>
+    <div class="sobre-grid reveal">
+      <div class="sobre-text">
+        <p style="margin-bottom:1.2rem">Meu nome é <strong>Adriano Costa Marques</strong>, estudante de <strong>Análise e Desenvolvimento de Sistemas</strong>. Apaixonado por tecnologia, estou construindo minha trajetória no desenvolvimento de software.</p>
+        <p style="margin-bottom:1.2rem">Acredito que <strong>todo problema tem um código</strong> — e minha missão é aprender a escrever cada vez melhor. Evoluindo a cada projeto, bug resolvido e linha de código.</p>
+        <p>Sou do Pará, Brasil. Trabalho, estudo e construo soluções que fazem sentido no mundo real.</p>
+      </div>
+      <div class="sobre-stats">
+        <div class="stat-card"><div class="stat-number">ADS</div><div class="stat-label">Graduação em andamento</div></div>
+        <div class="stat-card"><div class="stat-number">PA</div><div class="stat-label">Pará · Brasil</div></div>
+        <div class="stat-card"><div class="stat-number">∞</div><div class="stat-label">Vontade de aprender</div></div>
+        <div class="stat-card"><div class="stat-number">100%</div><div class="stat-label">Comprometido</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<section id="skills">
+  <div class="section-inner">
+    <div class="section-tag">02 // habilidades</div>
+    <h2 class="section-title reveal">Tecnologias & ferramentas</h2>
+    <div class="skills-grid reveal">
+      <div class="skill-category">
+        <div class="skill-cat-title">// linguagens</div>
+        <div class="skill-items">
+          <span class="skill-tag blue">HTML5</span>
+          <span class="skill-tag blue">CSS3</span>
+          <span class="skill-tag blue">JavaScript</span>
+          <span class="skill-tag purple">Python</span>
+          <span class="skill-tag purple">SQL</span>
+        </div>
+      </div>
+      <div class="skill-category">
+        <div class="skill-cat-title">// ferramentas</div>
+        <div class="skill-items">
+          <span class="skill-tag blue">Git</span>
+          <span class="skill-tag blue">GitHub</span>
+          <span class="skill-tag purple">VS Code</span>
+          <span class="skill-tag purple">Figma</span>
+        </div>
+      </div>
+      <div class="skill-category">
+        <div class="skill-cat-title">// estudando agora</div>
+        <div class="skill-items">
+          <span class="skill-tag blue">React</span>
+          <span class="skill-tag blue">Node.js</span>
+          <span class="skill-tag purple">Banco de Dados</span>
+          <span class="skill-tag purple">Lógica de Programação</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<section id="projetos">
+  <div class="section-inner">
+    <div class="section-tag">03 // projetos</div>
+    <h2 class="section-title reveal">Em construção</h2>
+    <div class="projetos-grid reveal">
+      <div class="projeto-card">
+        <div class="projeto-badge">concluído</div>
+        <div class="projeto-title">Site Pessoal ACM</div>
+        <p class="projeto-desc">Este site — minha primeira vitrine digital. HTML, CSS e JavaScript puros, identidade visual própria.</p>
+      </div>
+      <div class="projeto-card">
+        <div class="projeto-badge em-breve">em breve</div>
+        <div class="projeto-title">Projeto ADS #01</div>
+        <p class="projeto-desc">Primeiro projeto prático do curso de Análise e Desenvolvimento de Sistemas. Em desenvolvimento.</p>
+      </div>
+      <div class="projeto-card">
+        <div class="projeto-badge em-breve">planejado</div>
+        <div class="projeto-title">Portfólio Completo</div>
+        <p class="projeto-desc">Um portfólio com todos os projetos desenvolvidos ao longo da graduação. Em construção junto com o aprendizado.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<section id="contato">
+  <div class="section-inner">
+    <div class="contato-inner">
+      <div class="section-tag" style="justify-content:center">04 // onde me encontrar</div>
+      <h2 class="section-title reveal" style="text-align:center">Minhas redes</h2>
+      <div class="social-grid reveal" style="margin-top:0">
+        <a href="https://github.com/adriano191296-cell" target="_blank" class="social-link">
+          <span class="social-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0112 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z"/></svg></span>
+          GitHub
+        </a>
+        <a href="https://www.linkedin.com/in/adriano-costa-ads" target="_blank" class="social-link">
+          <span class="social-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg></span>
+          LinkedIn
+        </a>
+        <a href="https://www.instagram.com/adriano_costa_19?igsh=MW5iM3gycjZ3YTU1Mw==" target="_blank" class="social-link">
+          <span class="social-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="0.5" fill="currentColor"/></svg></span>
+          Instagram
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p><span class="footer-accent">{ACM}</span> · Adriano Costa Marques · 2026<br><span style="margin-top:0.4rem; display:inline-block; opacity:0.5">Feito com dedicação · Em constante evolução</span></p>
+</footer>
+
+<script>
+  const cursor = document.getElementById('cursor');
+  const ring = document.getElementById('cursorRing');
+  let mx = 0, my = 0, rx = 0, ry = 0;
+
+  document.addEventListener('mousemove', e => {
+    mx = e.clientX; my = e.clientY;
+    cursor.style.transform = `translate(${mx - 5}px, ${my - 5}px)`;
+  });
+
+  function animRing() {
+    rx += (mx - rx) * 0.12;
+    ry += (my - ry) * 0.12;
+    ring.style.transform = `translate(${rx - 18}px, ${ry - 18}px)`;
+    requestAnimationFrame(animRing);
+  }
+  animRing();
+
+  document.querySelectorAll('a, button').forEach(el => {
+    el.addEventListener('mouseenter', () => {
+      cursor.style.transform += ' scale(1.5)';
+      ring.style.width = '50px';
+      ring.style.height = '50px';
+    });
+    el.addEventListener('mouseleave', () => {
+      ring.style.width = '36px';
+      ring.style.height = '36px';
+    });
+  });
+
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+      }
+    });
+  }, { threshold: 0.15 });
+  reveals.forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
